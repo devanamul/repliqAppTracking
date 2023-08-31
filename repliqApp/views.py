@@ -31,6 +31,23 @@ class DeviceViewSet(viewsets.ModelViewSet):
         return obj.is_checked_out()
 
     @action(detail=True, methods=['post'])
+    def return_device(self, request, pk=None):
+        device = self.get_object()
+        employee_id = request.data.get('employee_id')
+        return_condition = request.data.get('return_condition')
+
+        if not device.is_checked_out():
+            return Response({'error': 'Device is not checked out.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        device_log = DeviceLog.objects.filter(device=device, employee_id=employee_id, return_date__isnull=True).first()
+
+        if not device_log:
+            return Response({'error': 'Device is not checked out to the specified employee.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        device_log.mark_as_returned(return_condition)
+
+        return Response({'status': 'Device returned successfully'})
+    @action(detail=True, methods=['post'])
     def checkout(self, request, pk=None):
         device = self.get_object()
         employee_id = request.data.get('employee_id')

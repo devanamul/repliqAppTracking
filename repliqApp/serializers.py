@@ -18,8 +18,13 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     def get_is_checked_out(self, obj):
         return obj.is_checked_out()
+    def validate(self, data):
+        if self.instance and 'employee' in data:
+            if self.instance.is_checked_out():
+                raise serializers.ValidationError('Device is already checked out.')
+
+        return data
 class DeviceLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceLog
-        # exclude = ['return_date']
         fields = '__all__'

@@ -2,10 +2,10 @@ from rest_framework import permissions
 
 class IsCompanyEmployee(permissions.BasePermission):
     """
-    Custom permission to only allow companies to view their own data.
+    Custom permission to only allow employees of a company to view their own data.
     """
 
     def has_object_permission(self, request, view, obj):
-        # Check if the logged in user's company matches the object's company
-        return obj.company == request.user.company.employee
-    
+        if hasattr(request.user, 'employee') and hasattr(obj, 'employees'):
+            return request.user.employee.company == obj
+        return False

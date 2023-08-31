@@ -46,4 +46,10 @@ class DeviceLog(models.Model):
         return f"{self.device.name} - {self.employee.name}"
     def is_overdue(self):
         return not self.is_returned and self.due_date < timezone.now().date()
-    
+    def mark_as_returned(self, return_condition):
+        self.return_date = timezone.now()
+        self.return_condition = return_condition
+        self.is_returned = True
+        self.save()
+        self.device.condition = return_condition
+        self.device.save()
